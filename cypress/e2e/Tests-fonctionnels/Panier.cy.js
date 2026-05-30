@@ -1,13 +1,13 @@
 describe('Tests gestion du panier', () => {
-    const clearCart = () => {
-        cy.visit('http://localhost:4200/#/cart')
-        cy.getBySel('cart-line-delete').click({ multiple: true })
-        cy.getBySel("cart-empty").should("be.visible")
-    }
 
     beforeEach(() => {
         cy.userlogin()
+        cy.ensureCartIsEmpty()
         cy.visit('http://localhost:4200/#/products')
+    })
+
+    afterEach(() => {
+        cy.ensureCartIsEmpty()
     })
 
 
@@ -34,7 +34,7 @@ describe('Tests gestion du panier', () => {
                     const afterStock = parseInt(afterText.match(/\d+/)[0], 10)
 
                     expect(afterStock).to.equal(beforeStock - quantity)
-                    clearCart()
+                   
 
                 })
             })
@@ -113,7 +113,7 @@ describe('Tests gestion du panier', () => {
                 expect(line).to.exist
                 expect(line.quantity).to.eq(1)
 
-                clearCart()
+                
             })
         })
     })

@@ -37,5 +37,36 @@ Cypress.Commands.add('userlogin', () => {
 })
 
 
-    
- 
+Cypress.Commands.add("ensureCartIsEmpty", () => {
+  return cy.window().then((win) => {
+    const token = win.localStorage.getItem("user")
+
+    expect(token).to.exist
+
+    return cy.request({
+      method: "GET",
+      url: "http://localhost:8081/orders",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).then((res) => {
+      const orderLines = res.body.orderLines || []
+
+      if (orderLines.length === 0) {
+        return
+      }
+
+      return cy.wrap(orderLines).each((line) => {
+        return cy.request({
+          method: "DELETE",
+          url: `http://localhost:8081/orders/${line.id}/delete`,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+      })
+    })
+  })
+})
+
+
